@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.0](https://github.com/Djelibeybi/libdns-oraclecloud/compare/v1.0.0...v1.1.0) (2026-03-22)
+
+
+### Features
+
+* add OCI smoke test utility ([#3](https://github.com/Djelibeybi/libdns-oraclecloud/issues/3)) ([a8d7733](https://github.com/Djelibeybi/libdns-oraclecloud/commit/a8d7733e39839f7aaff8c740b92e279dbd59bc8a))
+
+
+### Bug Fixes
+
+* **provider:** normalize TXT RDATA returned by OCI ([a8d7733](https://github.com/Djelibeybi/libdns-oraclecloud/commit/a8d7733e39839f7aaff8c740b92e279dbd59bc8a))
+* **provider:** quote TXT RDATA for OCI TXT create and delete operations ([a8d7733](https://github.com/Djelibeybi/libdns-oraclecloud/commit/a8d7733e39839f7aaff8c740b92e279dbd59bc8a))
+* **provider:** respect OCI DNS record pagination limits ([a8d7733](https://github.com/Djelibeybi/libdns-oraclecloud/commit/a8d7733e39839f7aaff8c740b92e279dbd59bc8a))
+
 ## 1.0.0 (2026-03-22)
 
 
