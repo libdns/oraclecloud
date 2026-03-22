@@ -168,6 +168,53 @@ func TestListZones(t *testing.T) {
 	}
 }
 
+func TestRecordToDetailsQuotesTXTData(t *testing.T) {
+	details, err := recordToDetails(libdns.TXT{
+		Name: "@",
+		TTL:  30 * time.Second,
+		Text: "libdns oracle cloud",
+	}, "example.com.")
+	if err != nil {
+		t.Fatalf("recordToDetails() error = %v", err)
+	}
+	if got := value(details.Rdata); got != `"libdns oracle cloud"` {
+		t.Fatalf("recordToDetails() Rdata = %q, want %q", got, `"libdns oracle cloud"`)
+	}
+}
+
+func TestRecordToDetailsQuotesRawTXTRData(t *testing.T) {
+	details, err := recordToDetails(libdns.RR{
+		Name: "@",
+		TTL:  30 * time.Second,
+		Type: "TXT",
+		Data: "libdns oracle cloud",
+	}, "example.com.")
+	if err != nil {
+		t.Fatalf("recordToDetails() error = %v", err)
+	}
+	if got := value(details.Rdata); got != `"libdns oracle cloud"` {
+		t.Fatalf("recordToDetails() Rdata = %q, want %q", got, `"libdns oracle cloud"`)
+	}
+}
+
+func TestToLibdnsRecordParsesTXTRData(t *testing.T) {
+	record, err := toLibdnsRecord(testOCIRecord("smoke.example.com", "TXT", `"libdns-oraclecloud" " smoke"`, 30), "example.com.")
+	if err != nil {
+		t.Fatalf("toLibdnsRecord() error = %v", err)
+	}
+
+	txt, ok := record.(libdns.TXT)
+	if !ok {
+		t.Fatalf("record type = %T, want libdns.TXT", record)
+	}
+	if txt.Name != "smoke" {
+		t.Fatalf("TXT name = %q, want %q", txt.Name, "smoke")
+	}
+	if txt.Text != "libdns-oraclecloud smoke" {
+		t.Fatalf("TXT text = %q, want %q", txt.Text, "libdns-oraclecloud smoke")
+	}
+}
+
 func TestEnvironmentConfigurationProviderUsesOracleCLIVariables(t *testing.T) {
 	t.Setenv(envCLITenancy, "ocid1.tenancy.oc1..example")
 	t.Setenv(envCLIUser, "ocid1.user.oc1..example")

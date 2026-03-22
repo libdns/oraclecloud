@@ -63,6 +63,33 @@ The provider accepts Oracle's documented OCI CLI environment variables:
 - `OCI_CLI_CONFIG_FILE`
 - `OCI_CLI_PROFILE`
 
+## Smoke Test
+
+You can verify real OCI auth and TXT-record write access locally with the bundled smoke-test command:
+
+```sh
+go run ./cmd/ocismoke \
+  -auth config_file \
+  -config-file ~/.oci/config \
+  -config-profile DEFAULT \
+  -zone example.com
+```
+
+By default it creates a random `_libdns-smoke-*` TXT record, confirms it can read it back, and then deletes it.
+
+Useful flags:
+
+- `-auth auto|config_file|environment|api_key`
+- `-zone` zone name or OCI zone OCID
+- `-view-id` for private zones accessed by name
+- `-scope GLOBAL|PRIVATE`
+- `-name` to override the generated label
+- `-value` to override the generated TXT value
+
+For safety, the smoke-test command does not accept inline secret flags such as
+`--private-key` or `--private-key-passphrase`. Use `-config-file`, `-private-key-path`,
+or Oracle's `OCI_CLI_*` environment variables instead.
+
 ## Versioning
 
 This module follows Semantic Versioning, with Git tags like `v1.2.3`.

@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/Djelibeybi/libdns-oraclecloud/internal/txtrdata"
 	"github.com/libdns/libdns"
 	"github.com/oracle/oci-go-sdk/v65/common"
 	ociauth "github.com/oracle/oci-go-sdk/v65/common/auth"
@@ -271,7 +273,7 @@ func (p *Provider) ListZones(ctx context.Context) ([]libdns.Zone, error) {
 	for {
 		req := ocidns.ListZonesRequest{
 			CompartmentId: common.String(p.CompartmentID),
-			Limit:         common.Int64(1000),
+			Limit:         common.Int64(100),
 			Page:          page,
 		}
 		if err := p.applyListOptions(&req); err != nil {
@@ -525,7 +527,7 @@ func (p *Provider) getZoneRecords(ctx context.Context, client dnsAPI, zone strin
 	for {
 		req := ocidns.GetZoneRecordsRequest{
 			ZoneNameOrId: common.String(zone),
-			Limit:        common.Int64(1000),
+			Limit:        common.Int64(100),
 			Page:         page,
 		}
 		if err := p.applyGetRecordsOptions(&req); err != nil {
@@ -716,9 +718,14 @@ func recordToDetails(record libdns.Record, zone string) (ocidns.RecordDetails, e
 		return ocidns.RecordDetails{}, fmt.Errorf("record data is required for %q %s", rr.Name, rr.Type)
 	}
 
+	rdata, err := recordRData(record)
+	if err != nil {
+		return ocidns.RecordDetails{}, err
+	}
+
 	return ocidns.RecordDetails{
 		Domain: common.String(absoluteDomainForAPI(rr.Name, zone)),
-		Rdata:  common.String(rr.Data),
+		Rdata:  common.String(rdata),
 		Rtype:  common.String(strings.ToUpper(rr.Type)),
 		Ttl:    common.Int(ttlSeconds(rr.TTL)),
 	}, nil
@@ -753,7 +760,11 @@ func deleteCriterionToOperation(record libdns.Record, zone string) (ocidns.Recor
 		op.Rtype = common.String(strings.ToUpper(rr.Type))
 	}
 	if rr.Data != "" {
-		op.Rdata = common.String(rr.Data)
+		rdata, err := recordRData(record)
+		if err != nil {
+			return ocidns.RecordOperation{}, err
+		}
+		op.Rdata = common.String(rdata)
 	}
 	if rr.TTL != 0 {
 		op.Ttl = common.Int(ttlSeconds(rr.TTL))
@@ -767,29 +778,32 @@ func toLibdnsRecord(record ocidns.Record, zone string) (libdns.Record, error) {
 		return nil, fmt.Errorf("OCI record is missing one of domain, rtype, or ttl")
 	}
 
+	recordType := strings.ToUpper(*record.Rtype)
+	if recordType == "TXT" {
+		text, err := txtrdata.Parse(valueOrEmpty(record.Rdata))
+		if err != nil {
+			return nil, err
+		}
+		txt := libdns.TXT{
+			Name: libdns.RelativeName(*record.Domain, zone),
+			TTL:  time.Duration(*record.Ttl) * time.Second,
+			Text: text,
+		}
+		txt.ProviderData = providerDataFromOCIRecord(record)
+		return txt, nil
+	}
+
 	rr := libdns.RR{
 		Name: libdns.RelativeName(*record.Domain, zone),
 		TTL:  time.Duration(*record.Ttl) * time.Second,
-		Type: strings.ToUpper(*record.Rtype),
+		Type: recordType,
 	}
 	if record.Rdata != nil {
 		rr.Data = *record.Rdata
 	}
 
 	parsed, _ := rr.Parse()
-	providerData := providerRecordData{}
-	if record.RecordHash != nil {
-		providerData.RecordHash = *record.RecordHash
-	}
-	if record.RrsetVersion != nil {
-		providerData.RRSetVersion = *record.RrsetVersion
-	}
-	if record.Domain != nil {
-		providerData.Domain = *record.Domain
-	}
-	if record.IsProtected != nil {
-		providerData.IsProtected = *record.IsProtected
-	}
+	providerData := providerDataFromOCIRecord(record)
 
 	switch value := parsed.(type) {
 	case libdns.Address:
@@ -1007,6 +1021,47 @@ func strconvInt(value int) string {
 
 func isOCID(value string) bool {
 	return strings.HasPrefix(strings.TrimSpace(value), "ocid1.")
+}
+
+func recordRData(record libdns.Record) (string, error) {
+	rr := record.RR()
+	if strings.TrimSpace(rr.Data) == "" {
+		return "", fmt.Errorf("record data is required for %q %s", rr.Name, rr.Type)
+	}
+
+	if strings.EqualFold(rr.Type, "TXT") {
+		text := rr.Data
+		if normalized, err := txtrdata.Parse(rr.Data); err == nil {
+			text = normalized
+		}
+		return strconv.Quote(text), nil
+	}
+
+	return rr.Data, nil
+}
+
+func providerDataFromOCIRecord(record ocidns.Record) providerRecordData {
+	providerData := providerRecordData{}
+	if record.RecordHash != nil {
+		providerData.RecordHash = *record.RecordHash
+	}
+	if record.RrsetVersion != nil {
+		providerData.RRSetVersion = *record.RrsetVersion
+	}
+	if record.Domain != nil {
+		providerData.Domain = *record.Domain
+	}
+	if record.IsProtected != nil {
+		providerData.IsProtected = *record.IsProtected
+	}
+	return providerData
+}
+
+func valueOrEmpty(value *string) string {
+	if value == nil {
+		return ""
+	}
+	return *value
 }
 
 type zoneRef struct {
