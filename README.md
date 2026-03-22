@@ -2,6 +2,8 @@
 
 `libdns` provider for Oracle Cloud Infrastructure DNS.
 
+This module currently requires Go 1.25 or newer.
+
 This package implements:
 
 - `GetRecords`
