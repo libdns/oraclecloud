@@ -35,7 +35,9 @@ jobs:
           check-latest: true
 
       - name: Verify module graph
-        run: go mod tidy
+        run: |
+          go mod tidy
+          git diff --exit-code -- go.mod go.sum
 
       - name: Build package
         run: go build ./...
