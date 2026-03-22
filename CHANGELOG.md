@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/Djelibeybi/libdns-oraclecloud/compare/v1.1.0...v1.1.1) (2026-03-22)
+
+
+### Bug Fixes
+
+* document Go 1.25 requirement ([#6](https://github.com/Djelibeybi/libdns-oraclecloud/issues/6)) ([2c4724b](https://github.com/Djelibeybi/libdns-oraclecloud/commit/2c4724b02755e1caca5fd85d3ec350a77ac13f36))
+
 ## [1.1.0](https://github.com/Djelibeybi/libdns-oraclecloud/compare/v1.0.0...v1.1.0) (2026-03-22)
 
 
