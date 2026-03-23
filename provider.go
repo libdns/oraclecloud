@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Djelibeybi/libdns-oraclecloud/internal/txtrdata"
+	"github.com/libdns/oraclecloud/internal/txtrdata"
 	"github.com/libdns/libdns"
 	"github.com/oracle/oci-go-sdk/v65/common"
 	ociauth "github.com/oracle/oci-go-sdk/v65/common/auth"
