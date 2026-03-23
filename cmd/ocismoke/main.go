@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	oraclecloud "github.com/Djelibeybi/libdns-oraclecloud"
-	"github.com/Djelibeybi/libdns-oraclecloud/internal/txtrdata"
+	oraclecloud "github.com/libdns/oraclecloud"
+	"github.com/libdns/oraclecloud/internal/txtrdata"
 	"github.com/libdns/libdns"
 )
 

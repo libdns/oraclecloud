@@ -115,7 +115,7 @@ For Go modules, that means:
 - `feat:` conventional commits map to minor releases
 - `feat!:` or any commit with a `BREAKING CHANGE:` footer maps to a major release
 - if this module ever releases `v2+`, the Go module path must also change to include the major suffix
-  such as `github.com/Djelibeybi/libdns-oraclecloud/v2`
+  such as `github.com/libdns/oraclecloud/v2`
 
 GitHub Actions uses `release-please` to turn conventional commits merged to `main` into release PRs,
 SemVer tags, changelog updates, and GitHub Releases.
@@ -126,4 +126,4 @@ SemVer tags, changelog updates, and GitHub Releases.
   force use of `~/.oci/config`, set `Auth: "config_file"`.
 - For private zones accessed by name, OCI requires `ViewID`.
 - `SetRecords` is atomic per RRSet because OCI exposes RRSet replacement as a single operation, but it is not atomic across multiple distinct RRSets.
-- The module path is `github.com/Djelibeybi/libdns-oraclecloud`.
+- The module path is `github.com/libdns/oraclecloud`.

@@ -1,4 +1,4 @@
-module github.com/Djelibeybi/libdns-oraclecloud
+module github.com/libdns/oraclecloud
 
 go 1.25.0
 
