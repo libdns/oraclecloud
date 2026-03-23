@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/libdns/oraclecloud/compare/v1.1.1...v1.1.2) (2026-03-23)
+
+
+### Bug Fixes
+
+* update Go module path to github.com/libdns/oraclecloud ([#2](https://github.com/libdns/oraclecloud/issues/2)) ([5dcfc09](https://github.com/libdns/oraclecloud/commit/5dcfc0929c65e0c33774786aeafba076493ccc30))
+
 ## 1.1.1 (2026-03-23)
 
 
